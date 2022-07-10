@@ -17,7 +17,6 @@ func getOne(id int64) user {
 func getBatch(n int64, pool int64) (res []user) {
 	goroutineLimiter := make(chan struct{}, pool)
 	var wg sync.WaitGroup
-	defer wg.Done()
 	var mu sync.Mutex
 	var i int64
 	for i = 0; i < n; i++ {
@@ -28,6 +27,7 @@ func getBatch(n int64, pool int64) (res []user) {
 			mu.Lock()
 			res = append(res, nextUser)
 			mu.Unlock()
+			wg.Done()
 			<-goroutineLimiter
 		}(i)
 	}
